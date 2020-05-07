@@ -23,10 +23,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     private Context mContext;
     private List<User> mUsers;
 
-    public UserAdapter(Context mContext,List<User> mUsers)
+    public UserAdapter(Context mContext, List<User> mUsers, boolean b)
     {
         this.mUsers=mUsers;
         this.mContext=mContext;
+    }
+
+    public UserAdapter(Context context, List<User> mUsers) {
+
     }
 
     @NonNull
@@ -61,7 +65,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return mUsers.size();
+       return mUsers.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder
