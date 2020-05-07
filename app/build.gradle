@@ -39,7 +39,7 @@ dependencies {
     implementation 'com.mikhaellopez:circularimageview:4.2.0'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     //implementation 'com.android.tools.build:gradle v3.2.1'
-
+    implementation 'com.google.firebase:firebase-storage:19.1.1'
 
 
     //noinspection GradleCompatible
