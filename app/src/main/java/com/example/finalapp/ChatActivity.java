@@ -67,7 +67,9 @@ public class ChatActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    Glide.with(ChatActivity.this).load(user.getImageURL()).into(profile_image);
+
+
+                    Glide.with(getApplicationContext()).load(user.getImageURL()).into(profile_image);
                 }
             }
 
