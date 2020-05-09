@@ -61,7 +61,7 @@ public class MessageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
 
-        toolbar=(Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -96,7 +96,7 @@ public class MessageActivity extends AppCompatActivity {
                 String msg=text_send.getText().toString();
                 if(!msg.equals(""))
                 {
-                    sendMessage(fuser.getUid(),userid,msg);
+                    sendMessage(fuser.getUid(),userid,msg,userid);
                 }
                 else
                 {
@@ -159,7 +159,7 @@ public class MessageActivity extends AppCompatActivity {
          });
     }
 
-    private void sendMessage(String sender,String receiver,String message)
+    private void sendMessage(String sender,final String receiver,String message,final String userid)
     {
         DatabaseReference reference=FirebaseDatabase.getInstance().getReference();
         HashMap<String,Object> hashMap=new HashMap<>();
@@ -169,6 +169,26 @@ public class MessageActivity extends AppCompatActivity {
         hashMap.put("isseen",false);
 
         reference.child("Chats").push().setValue(hashMap);
+
+
+        final DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("Chatlist")
+                .child(fuser.getUid())
+                .child(userid);
+
+        chatRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.exists())
+                {
+                    chatRef.child("id").setValue(userid);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void readMesagges(final String myid, final String userid, final String imageurl)
@@ -176,6 +196,7 @@ public class MessageActivity extends AppCompatActivity {
         mchat=new ArrayList<>();
 
         reference=FirebaseDatabase.getInstance().getReference("Chats");
+
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
