@@ -16,9 +16,11 @@
         <activity android:name=".ResetPasswordActivity"
             android:parentActivityName=".LoginActivity"></activity>
         <activity android:name=".MessageActivity" />
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".ChatActivity" />
-        <activity android:name=".RegisterActivity" />
+        <activity android:name=".LoginActivity"
+            android:parentActivityName=".MainActivity"/>
+        <activity android:name=".ChatActivity"/>
+        <activity android:name=".RegisterActivity"
+            android:parentActivityName=".MainActivity"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

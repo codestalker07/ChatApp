@@ -61,8 +61,9 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user=dataSnapshot.getValue(User.class);
+                assert user != null;
                 username.setText(user.getUsername());
-                if(user.getImageURL().equals("default"))
+                if("default".equals(user.getImageURL()))
                 {
                     profile_image.setImageResource(R.mipmap.ic_launcher);
                 }
@@ -94,6 +95,7 @@ public class ChatActivity extends AppCompatActivity {
                 for(DataSnapshot snapshot:dataSnapshot.getChildren())
                 {
                     Chat chat=snapshot.getValue(Chat.class);
+                    assert chat != null;
                     if(chat.getReceiver().equals(firebaseUser.getUid()) && !chat.isIsseen())
                     {
                         unread++;
