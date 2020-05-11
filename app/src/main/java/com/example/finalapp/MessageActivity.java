@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -19,20 +20,31 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.finalapp.Adapter.MessageAdapter;
+import com.example.finalapp.Fragments.APIService;
 import com.example.finalapp.Model.Chat;
 import com.example.finalapp.Model.User;
+import com.example.finalapp.Notifications.Client;
+import com.example.finalapp.Notifications.Data;
+import com.example.finalapp.Notifications.MyResponse;
+import com.example.finalapp.Notifications.Sender;
+import com.example.finalapp.Notifications.Token;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.mikhaellopez.circularimageview.CircularImageView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MessageActivity extends AppCompatActivity {
 
@@ -54,6 +66,10 @@ public class MessageActivity extends AppCompatActivity {
 
     ValueEventListener seenListener;
 
+    APIService apiService;
+
+    boolean notify=false;
+
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -71,6 +87,8 @@ public class MessageActivity extends AppCompatActivity {
                   startActivity(new Intent(MessageActivity.this,ChatActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             }
         });
+
+        apiService= Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
 
 
         recyclerView=findViewById(R.id.recycler_view);
@@ -93,6 +111,7 @@ public class MessageActivity extends AppCompatActivity {
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                notify=true;
                 String msg=text_send.getText().toString();
                 if(!msg.equals(""))
                 {
@@ -189,6 +208,68 @@ public class MessageActivity extends AppCompatActivity {
 
             }
         });
+
+        final String msg=message;
+
+        reference=FirebaseDatabase.getInstance().getReference("Users").child(fuser.getUid());
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                User user=dataSnapshot.getValue(User.class);
+
+                if(notify) {
+                    sendNotification(receiver, user.getUsername(), msg, userid);
+                }
+                notify=false;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void sendNotification(final String receiver, final String username, final String message, final String userid)
+    {
+        DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
+        Query query=tokens.orderByKey().equalTo(receiver);
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot snapshot:dataSnapshot.getChildren())
+                {
+                    Token token=snapshot.getValue(Token.class);
+                    Data data=new Data(fuser.getUid(),R.mipmap.ic_launcher,username+": "+message,"New Message",userid);
+
+                    Sender sender=new Sender(data,token.getToken());
+
+                    apiService.sendNotification(sender)
+                            .enqueue(new Callback<MyResponse>() {
+                                @Override
+                                public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+                                    if(response.code()==200)
+                                    {
+                                        if(response.body().success!=1)
+                                        {
+                                            Toast.makeText(MessageActivity.this,"Failed!",Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<MyResponse> call, Throwable t) {
+
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void readMesagges(final String myid, final String userid, final String imageurl)
@@ -220,6 +301,8 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     private void status(String status)
     {
