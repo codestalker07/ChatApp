@@ -36,6 +36,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
         btn_reset=findViewById(R.id.btn_reset);
 
         firebaseAuth=FirebaseAuth.getInstance();
+        firebaseAuth=FirebaseAuth.getInstance();
 
         btn_reset.setOnClickListener(new View.OnClickListener() {
             @Override

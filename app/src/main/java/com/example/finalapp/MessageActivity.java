@@ -242,6 +242,7 @@ public class MessageActivity extends AppCompatActivity {
                     Token token=snapshot.getValue(Token.class);
                     Data data=new Data(fuser.getUid(),R.mipmap.ic_launcher,username+": "+message,"New Message",userid);
 
+                    assert token != null;
                     Sender sender=new Sender(data,token.getToken());
 
                     apiService.sendNotification(sender)
@@ -250,6 +251,7 @@ public class MessageActivity extends AppCompatActivity {
                                 public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
                                     if(response.code()==200)
                                     {
+                                        //assert response.body() != null;
                                         if(response.body().success!=1)
                                         {
                                             Toast.makeText(MessageActivity.this,"Failed!",Toast.LENGTH_SHORT).show();

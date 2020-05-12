@@ -28,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/username"
                 android:layout_marginStart="25dp"
-                android:text="Sam"
+                android:text="Chat Box"
                 android:textColor="#F0F0F0"
                 android:textStyle="bold"/>
 
